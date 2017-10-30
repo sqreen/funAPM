@@ -50,3 +50,6 @@ app.listen(9090, () => {
 
     console.log('server running on port 9090');
 });
+
+
+require('../lib/index');
