@@ -36,7 +36,7 @@ const wrap = function (holder, method, name) {
 
                 done = true;
                 const duration = process.hrtime(t0);
-                Context.getContext().actions.push({ name, duration });
+                Context.getContext().actions.push({ name, duration, start: t0 });
                 return cb.apply(this, arguments);
             })
         }
@@ -47,7 +47,7 @@ const wrap = function (holder, method, name) {
             done = true;
             const duration = process.hrtime(t0);
             const measure = Measures.get(Context.getContext());
-            measure.actions.push({ name, duration });
+            measure.actions.push({ name, duration, start: t0 });
         }
         return res;
     }

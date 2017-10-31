@@ -12,10 +12,11 @@ Http.Server.prototype.emit = function (type) {
     if (type === 'request') {
         const [req, res] = [arguments[1], arguments[2]];
 
-        const data = { startDate: new Date(), duration: [0, 0], actions: [] };
+        const timeStart = process.hrtime();
+
+        const data = { startDate: new Date(), start: timeStart, duration: [0, 0], actions: [] };
         Measures.set(req, data);
 
-        const timeStart = process.hrtime();
         res.on('finish', () => {
 
             data.duration = process.hrtime(timeStart);
