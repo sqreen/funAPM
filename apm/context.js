@@ -14,7 +14,7 @@ Http.Server.prototype.emit = function (type) {
 
         const timeStart = process.hrtime();
 
-        const data = { startDate: new Date(), start: timeStart, duration: [0, 0], actions: [] };
+        const data = { url: req.url, method: req.method, startDate: new Date(), start: timeStart, duration: [0, 0], actions: [] };
         Measures.set(req, data);
 
         res.on('finish', () => {
