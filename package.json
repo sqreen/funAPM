@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/sqreen/funAPM/issues"
   },
-  "homepage": "https://github.com/sqreen/funAPM#readme"
+  "homepage": "https://github.com/sqreen/funAPM#readme",
+  "dependencies": {
+    "stream-json": "^0.5.2"
+  }
 }
