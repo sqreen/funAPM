@@ -1,5 +1,5 @@
 'use strict';
-require('../lib/index').start();
+// require('../apm/index').start();
 
 const Express = require('express');
 const Mongoose = require('mongoose');
