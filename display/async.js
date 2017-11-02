@@ -14,8 +14,6 @@ const Node = class {
         this.type = type;
         this.stack = stack;
         this.children = [];
-        this.fixedLength = 0;
-        this.fixedDepth = 0;
     }
 
     addChild(node) {
@@ -24,8 +22,24 @@ const Node = class {
 
     build() {
         this.children = this.children.sort((a, b) => a.id - b.id);
-        this.fixedLength = this.length;
-        this.fixedDepth = this.depth;
+    }
+
+    get length() {
+        return Math.max(...[this.children.length].concat(this.children.map((x) => x.length))) + 1;
+    }
+
+    getData() {
+
+        const res = {
+            name: this.type,
+            value: this.length
+        };
+
+        if (this.children.length > 0) {
+            res.children = this.children.map((x) => x.getData())
+        }
+
+        return res;
     }
 };
 
@@ -61,6 +75,8 @@ jsonStream.output.on('end', function () {
 
     const root = nodeMap.get(1);
     root.build();
+    root.type = 'root';
+    console.log(JSON.stringify(root.getData(), null, 2));
 });
 
 Fs.createReadStream(filename)

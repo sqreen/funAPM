@@ -17,6 +17,9 @@
   },
   "homepage": "https://github.com/sqreen/funAPM#readme",
   "dependencies": {
-    "stream-json": "^0.5.2"
+    "chrome2calltree": "^1.0.2",
+    "cpuprofile": "^0.1.1",
+    "stream-json": "^0.5.2",
+    "v8-profiler": "^5.7.0"
   }
 }
