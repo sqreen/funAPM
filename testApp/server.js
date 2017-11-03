@@ -1,4 +1,5 @@
 'use strict';
+require('../apm/index').start();
 const Express = require('express');
 const Mongoose = require('mongoose');
 const BodyParser = require('body-parser');
@@ -18,21 +19,22 @@ app.use(function(err, req, res, next) {
     return next(err);
 });
 
-app.post('/cats', parseJSON, (req, res, next) => {
+app.post('/cats', parseJSON, async (req, res, next) => {
 
     if (typeof req.body.name !== 'string') { // TODO: use celbrate somedays
         const err = new Error('wrong body format');
         return setTimeout(() => next(err));
     }
     const kitty = new Cat({ name: req.body.name });
-    kitty.save(function (err) {
-        if (err) {
-            return next(err);
-        } else {
-            res.status(201);
-            return res.end('');
-        }
-    });
+
+    try {
+        await kitty.save();
+        res.status(201);
+        return res.end('');
+    }
+    catch (err) {
+        return next(err);
+    }
 });
 
 app.get('/destroyrandom', async (req, res, next) => {
