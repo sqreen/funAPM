@@ -1,4 +1,8 @@
 'use strict';
+const PerfHook = require('perf_hooks');
+
+const Uuidv4 = require('uuid/v4');
+
 const Context = require('../../context');
 const Measures = require('../../measures');
 
@@ -27,7 +31,8 @@ const wrap = function (holder, method, name) {
     const orig = holder[method];
     holder[method] = function (...args) {
 
-        let t0;
+        const uuid = Uuidv4();
+
         let done = false;
         if (typeof args.slice(-1) === 'function') {
             // we have a callback
@@ -35,19 +40,38 @@ const wrap = function (holder, method, name) {
             args.push(function () {
 
                 done = true;
-                const duration = process.hrtime(t0);
-                Context.getContext().actions.push({ name, duration, start: t0 });
+                PerfHook.performance.mark(`end-${uuid}`);
+                PerfHook.performance.measure(`${name}-${uuid}`, `start-${uuid}`, `end-${uuid}`);
+
+                const measure = PerfHook.performance.getEntriesByName(`${name}-${uuid}`)[0];
+
+                const measures = Measures.get(Context.getContext());
+                measures.actions.push({ name, uuid, duration: measure.duration, startTime: measure.startTime });
+
+                PerfHook.performance.clearMarks(`start-${uuid}`);
+                PerfHook.performance.clearMarks(`end-${uuid}`);
+                PerfHook.performance.clearMeasures(`${name}-${uuid}`);
+
+
                 return cb.apply(this, arguments);
             })
         }
 
-        t0 = process.hrtime();
+        PerfHook.performance.mark(`start-${uuid}`);
         const res = orig.apply(this, args);
         if (!done) {
             done = true;
-            const duration = process.hrtime(t0);
-            const measure = Measures.get(Context.getContext());
-            measure.actions.push({ name, duration, start: t0 });
+            PerfHook.performance.mark(`end-${uuid}`);
+            PerfHook.performance.measure(`${name}-${uuid}`, `start-${uuid}`, `end-${uuid}`);
+
+            const measure = PerfHook.performance.getEntriesByName(`${name}-${uuid}`)[0];
+
+            const measures = Measures.get(Context.getContext());
+            measures.actions.push({ name, uuid, duration: measure.duration, startTime: measure.startTime });
+
+            PerfHook.performance.clearMarks(`start-${uuid}`);
+            PerfHook.performance.clearMarks(`end-${uuid}`);
+            PerfHook.performance.clearMeasures(`${name}-${uuid}`);
         }
         return res;
     }

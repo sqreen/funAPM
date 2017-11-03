@@ -23,3 +23,7 @@ module.exports.start = function () {
 
     instrumentation.start();
 };
+
+if (module.id === 'internal/preload') {
+    module.exports.start();
+};

@@ -1,6 +1,10 @@
 'use strict';
 const AsyncHooks = require('async_hooks');
 const Http = require('http');
+const PerfHook = require('perf_hooks');
+
+const Uuidv4 = require('uuid/v4');
+
 
 const Measures = require('./measures');
 
@@ -12,14 +16,27 @@ Http.Server.prototype.emit = function (type) {
     if (type === 'request') {
         const [req, res] = [arguments[1], arguments[2]];
 
-        const timeStart = process.hrtime();
+        req.apm = {};
+        req.apm.uuid = Uuidv4();
 
-        const data = { url: req.url, method: req.method, startDate: new Date(), start: timeStart, duration: [0, 0], actions: [] };
+        PerfHook.performance.mark(`start-${req.apm.uuid}`);
+
+        const data = { uuid: req.apm.uuid, url: req.url, method: req.method, startDate: new Date(), startTime: 0, duration: 0, actions: [] };
         Measures.set(req, data);
 
         res.on('finish', () => {
 
-            data.duration = process.hrtime(timeStart);
+            PerfHook.performance.mark(`end-${req.apm.uuid}`);
+            PerfHook.performance.measure(`request-${req.apm.uuid}`, `start-${req.apm.uuid}`, `end-${req.apm.uuid}`);
+            const measure = PerfHook.performance.getEntriesByName(`request-${req.apm.uuid}`)[0];
+
+
+            PerfHook.performance.clearMarks(`start-${req.apm.uuid}`);
+            PerfHook.performance.clearMarks(`end-${req.apm.uuid}`);
+            PerfHook.performance.clearMeasures(`request-${req.apm.uuid}`);
+
+            data.startTime = measure.startTime;
+            data.duration = measure.duration;
             Measures.end(req);
         });
 
