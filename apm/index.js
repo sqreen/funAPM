@@ -24,6 +24,6 @@ module.exports.start = function () {
     instrumentation.start();
 };
 
-if (module.id === 'internal/preload') {
+if (module.parent.id === 'internal/preload') {
     module.exports.start();
 }
