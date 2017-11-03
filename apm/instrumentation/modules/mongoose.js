@@ -12,10 +12,7 @@ const wrapAsync = function (orig, name) {
 
         const uuid = Uuidv4();
 
-        name = name || `mongoose.${this.op}`;
-
-        PerfHook.performance.mark(`start-${uuid}`);
-
+        name = name || `mongoose.${this.op}`; // mongose Query.exec specific
         const finish = function () {
             PerfHook.performance.measure(`${name}-${uuid}`, `start-${uuid}`, `end-${uuid}`);
 
@@ -30,6 +27,7 @@ const wrapAsync = function (orig, name) {
         };
 
         try {
+            PerfHook.performance.mark(`start-${uuid}`);
             const res = await orig.apply(this, arguments);
             PerfHook.performance.mark(`end-${uuid}`);
             finish();
