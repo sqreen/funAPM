@@ -26,4 +26,4 @@ module.exports.start = function () {
 
 if (module.id === 'internal/preload') {
     module.exports.start();
-};
+}
