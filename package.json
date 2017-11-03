@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/sqreen/funAPM#readme",
   "dependencies": {
+    "d3-timeline": "^1.0.1",
     "uuid": "^3.1.0"
   }
 }
