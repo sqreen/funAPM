@@ -15,19 +15,33 @@ const wrapAsync = function (orig, name) {
         name = name || `mongoose.${this.op}`;
 
         PerfHook.performance.mark(`start-${uuid}`);
-        const res = await orig.apply(this, arguments);
-        PerfHook.performance.mark(`end-${uuid}`);
-        PerfHook.performance.measure(`${name}-${uuid}`, `start-${uuid}`, `end-${uuid}`);
 
-        const measure = PerfHook.performance.getEntriesByName(`${name}-${uuid}`)[0];
+        const finish = function () {
+            PerfHook.performance.measure(`${name}-${uuid}`, `start-${uuid}`, `end-${uuid}`);
 
-        const reqData = Measures.get(Context.getContext());
-        reqData.actions.push({ name, uuid, duration: measure.duration, startTime: measure.startTime });
+            const measure = PerfHook.performance.getEntriesByName(`${name}-${uuid}`)[0];
 
-        PerfHook.performance.clearMarks(`start-${uuid}`);
-        PerfHook.performance.clearMarks(`end-${uuid}`);
-        PerfHook.performance.clearMeasures(`${name}-${uuid}`);
-        return res;
+            const reqData = Measures.get(Context.getContext());
+            reqData.actions.push({ name, uuid, duration: measure.duration, startTime: measure.startTime });
+
+            PerfHook.performance.clearMarks(`start-${uuid}`);
+            PerfHook.performance.clearMarks(`end-${uuid}`);
+            PerfHook.performance.clearMeasures(`${name}-${uuid}`);
+        };
+
+        try {
+            const res = await orig.apply(this, arguments);
+            PerfHook.performance.mark(`end-${uuid}`);
+            finish();
+            return res;
+        }
+        catch (err) {
+            PerfHook.performance.mark(`end-${uuid}`);
+            finish();
+            throw err;
+        }
+
+
     }
 };
 
