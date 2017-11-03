@@ -40,8 +40,6 @@ const wrapAsync = function (orig, name) {
             finish();
             throw err;
         }
-
-
     }
 };
 
