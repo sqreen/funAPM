@@ -6,20 +6,16 @@ const Uuidv4 = require('uuid/v4');
 const Context = require('../../context');
 const Measures = require('../../measures');
 
-module.exports = function (mod) {
+const wrapAsync = function (orig, name) {
 
-    const proto = Object.getPrototypeOf(mod);
-
-    const exec = proto.Query.prototype.exec;
-
-    proto.Query.prototype.exec = async function () {
+    return async function () {
 
         const uuid = Uuidv4();
 
-        const name = `mongoose.${this.op}`;
+        name = name || `mongoose.${this.op}`;
 
         PerfHook.performance.mark(`start-${uuid}`);
-        const res = await exec.apply(this, arguments);
+        const res = await orig.apply(this, arguments);
         PerfHook.performance.mark(`end-${uuid}`);
         PerfHook.performance.measure(`${name}-${uuid}`, `start-${uuid}`, `end-${uuid}`);
 
@@ -32,19 +28,24 @@ module.exports = function (mod) {
         PerfHook.performance.clearMarks(`end-${uuid}`);
         PerfHook.performance.clearMeasures(`${name}-${uuid}`);
         return res;
-    };
+    }
+};
+
+module.exports = function (mod) {
+
+    const proto = Object.getPrototypeOf(mod);
+
+    const exec = proto.Query.prototype.exec;
+
+    proto.Query.prototype.exec = wrapAsync(exec);
 
     const Model = proto.Model;
 
-    // todo wrap save
+    const remove = Model.prototype.remove;
+    Model.prototype.remove = wrapAsync(remove, 'mongoose.remove');
 
-/*
-    for (const target of targets) {
-        wrap(Model, target, `monggose.${target}`);
-    }
-
-    wrap(Model.prototype, 'save', 'monggose.save');
-    wrap(Model.prototype, 'remove', 'monggose.remove');*/
+    const save = Model.prototype.save;
+    Model.prototype.save = wrapAsync(save, 'mongoose.save');
 
     return mod;
 };
