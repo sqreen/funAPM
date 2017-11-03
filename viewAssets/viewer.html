@@ -49,7 +49,7 @@
             return results;
         };
 
-        var input = {"uuid":"a4c025e0-bc6d-42c3-b0c3-239dd50a098a","url":"/destroyrandom","method":"GET","startDate":"2017-11-03T16:33:21.650Z","startTime":8635299.427881,"duration":27.706037,"actions":[{"name":"mongoose.find","uuid":"a4ae70ab-4152-498b-b7da-923e3643381d","duration":18.521711,"startTime":8635303.591947},{"name":"mongoose.remove","uuid":"b88b034d-9dbd-42ab-a2df-099195d56bdc","duration":1.816677,"startTime":8635323.760952}]};
+        var input = [];
 
         function drawRequest(inputs) {
             var chart = d3.timeline()
@@ -60,16 +60,21 @@
                 .ending(inputs.startTime + inputs.duration)
                 .margin({left:100, right:30, top:0, bottom:0});
 
-            d3.select('#main').append('div').attr('id', inputs.uuid);
-            d3.select("#"  + inputs.uuid).append('h3').text(inputs.method + ' ' + inputs.url + ' ' + inputs.startDate);
-            d3.select("#" + inputs.uuid).append("svg").attr("width", width)
+            d3.select('#main').append('div').attr('id', 'id' + inputs.uuid);
+            d3.select("#id"  + inputs.uuid).append('h3').text(inputs.method + ' ' + inputs.url + ' ' + inputs.startDate);
+            d3.select("#id" + inputs.uuid).append("svg").attr("width", width)
                 .datum(convertData(inputs))
                 .call(chart);
         }
 
         window.onload = function() {
 
-            drawRequest(input);
+            for (var i = 0; i < input.length; ++i) {
+                if (input[i] !== null) {
+                    drawRequest(input[i]);
+                }
+            }
+
         }
     </script>
 </head>

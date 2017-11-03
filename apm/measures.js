@@ -17,6 +17,12 @@ const preExitHandler = function () {
 
     out.write('null\n]');
     out.end();
+
+    const page = Fs.readFileSync(Path.join(__dirname, '../viewAssets/viewer.html')).toString();
+    const res =  page.replace('var input = [];', 'var input = ' + Fs.readFileSync(Path.join(process.cwd(), 'apm_logs.json')));
+
+    Fs.writeFileSync(Path.join(process.cwd(), 'view.html'), res);
+
     process.exit();
 };
 // https://nodejs.org/api/process.html#process_event_beforeexit
