@@ -36,31 +36,40 @@
         }
     </style>
     <script type="text/javascript">
-        window.onload = function() {
-            var labelTestData = [
-                {label: "mongoose.remove", times: [{"starting_time": 8635323.760952, "ending_time": 8635323.760952 + 1.816677}]},
-                {label: "mongoose.find", times: [{"starting_time": 8635303.591947, "ending_time": 8635303.591947 + 18.521711}]},
-                {label: "request", times: [{"starting_time": 8635299.427881, "ending_time": 8635299.427881 + 27.706037}, ]}
-            ];
 
-            var width = 990;
+        var width = 990;
+        var convertData = function (line) {
 
-            function timelineHover() {
-                var chart = d3.timeline()
-                    .showTimeAxis()
-                    .width(width)
-                    .stack()
-                    .beginning(8635299.427881) // we can optionally add beginning and ending times to speed up rendering a little
-                    .ending(8635299.427881 + 27.706037)
-                    .margin({left:100, right:30, top:0, bottom:0});
-
-                d3.select('#main').append('div').attr('id', 'a10');
-                d3.select("#a10").append("svg").attr("width", width)
-                    .datum(labelTestData)
-                    .call(chart);
+            var results = [];
+            results.push({ label: 'request', times: [{"starting_time": line.startTime, "ending_time": line.startTime + line.duration}]});
+            for (var i = 0; i < line.actions.length; ++i) {
+                var act = line.actions[i];
+                results.unshift({ label: act.name, times: [{"starting_time": act.startTime, "ending_time": act.startTime + act.duration}]});
             }
+            return results;
+        };
 
-            timelineHover();
+        var input = {"uuid":"a4c025e0-bc6d-42c3-b0c3-239dd50a098a","url":"/destroyrandom","method":"GET","startDate":"2017-11-03T16:33:21.650Z","startTime":8635299.427881,"duration":27.706037,"actions":[{"name":"mongoose.find","uuid":"a4ae70ab-4152-498b-b7da-923e3643381d","duration":18.521711,"startTime":8635303.591947},{"name":"mongoose.remove","uuid":"b88b034d-9dbd-42ab-a2df-099195d56bdc","duration":1.816677,"startTime":8635323.760952}]};
+
+        function drawRequest(inputs) {
+            var chart = d3.timeline()
+                .showTimeAxis()
+                .width(width)
+                .stack()
+                .beginning(inputs.startTime) // we can optionally add beginning and ending times to speed up rendering a little
+                .ending(inputs.startTime + inputs.duration)
+                .margin({left:100, right:30, top:0, bottom:0});
+
+            d3.select('#main').append('div').attr('id', inputs.uuid);
+            d3.select("#"  + inputs.uuid).append('h3').text(inputs.method + ' ' + inputs.url + ' ' + inputs.startDate);
+            d3.select("#" + inputs.uuid).append("svg").attr("width", width)
+                .datum(convertData(inputs))
+                .call(chart);
+        }
+
+        window.onload = function() {
+
+            drawRequest(input);
         }
     </script>
 </head>
