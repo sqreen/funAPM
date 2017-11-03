@@ -1,5 +1,4 @@
 'use strict';
-require('../apm/index').start();
 const Express = require('express');
 const Mongoose = require('mongoose');
 const BodyParser = require('body-parser');
