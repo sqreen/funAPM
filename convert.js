@@ -78,7 +78,6 @@ const merge = function (ch) {
 
 const merged = merge(chain);
 
-// console.log(merged.map((x) => JSON.stringify(x)).join('\n'));
 
 const build = function (mergedChain) {
 
@@ -112,9 +111,6 @@ const run = function (item) {
         id: item.id,
         children: (item.children || []).map((x) => run(x))
     };
-    if (res.children.length > 0) {
-        res.count = res.children.filter(Boolean).map((x) => x.count).filter(Boolean).reduce((a, b) => a + b, 0);
-    }
     return res;
 };
 

@@ -8,7 +8,8 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/spiermar/d3-flame-graph@1.0.4/dist/d3.flameGraph.min.js"></script>
 <script type="text/javascript">
     var flamegraph = d3.flameGraph()
-        .width(960 * 10);
+        .sort(false)
+        .width(960 );
 
     d3.json("data.json", function(error, data) {
         if (error) return console.warn(error);
